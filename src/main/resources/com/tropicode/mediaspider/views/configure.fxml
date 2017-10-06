@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<AnchorPane id="AnchorPane" fx:id="configure" prefHeight="400.0" prefWidth="600.0"
+            xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.tropicode.mediaspider.controllers.ConfigureController">
+    <children>
+        <VBox prefHeight="400.0" prefWidth="600.0" spacing="10.0" AnchorPane.bottomAnchor="0.0"
+              AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <children>
+                <Label fx:id="label" text="Please select the search scope"/>
+                <GridPane hgap="6">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="511.0" minWidth="10.0" prefWidth="510.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="357.0" minWidth="10.0" prefWidth="70.0"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        <RowConstraints minHeight="30.0" vgrow="ALWAYS"/>
+                        <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        <RowConstraints/>
+                        <RowConstraints/>
+                        <RowConstraints/>
+                        <RowConstraints/>
+                        <RowConstraints/>
+                        <RowConstraints/>
+                    </rowConstraints>
+                    <children>
+                        <Label text="Search paths"/>
+                        <TextArea fx:id="textSearchPath" minHeight="80.0" prefHeight="80.0" GridPane.rowIndex="1"/>
+                        <Button fx:id="buttonBrowseSearchPath" mnemonicParsing="false" text="Browse"
+                                GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                        <Label text="Picture file types" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                        <TextField fx:id="textPictureFileTypes" text="*.jpg;*.jpeg;*.gif;*.png;*.tif;*.tiff;*.raw;*.nef"
+                                   GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                        <Label text="Video file types" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                        <TextField fx:id="textVideoFileTypes" text="*.mp4;*.m4v;*.mov;*.avi;*.mkv" GridPane.columnIndex="0"
+                                   GridPane.rowIndex="5"/>
+                        <Label text="Target folder" GridPane.columnIndex="0" GridPane.rowIndex="6">
+                            <opaqueInsets>
+                                <Insets top="6.0"/>
+                            </opaqueInsets>
+                        </Label>
+                        <TextField id="textTargetFolder" GridPane.columnIndex="0" GridPane.rowIndex="7"/>
+                        <Button fx:id="buttonBrowseTargetFolder" mnemonicParsing="false" text="Browse"
+                                GridPane.columnIndex="1" GridPane.rowIndex="7"/>
+                        <CheckBox fx:id="checkboxSeparate" mnemonicParsing="false" text="Separate picture and video files"
+                                  GridPane.columnIndex="0" GridPane.rowIndex="8"/>
+                    </children>
+                </GridPane>
+            </children>
+        </VBox>
+    </children>
+    <padding>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+    </padding>
+</AnchorPane>
