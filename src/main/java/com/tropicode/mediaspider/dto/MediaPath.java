@@ -8,7 +8,7 @@ import java.util.Set;
 
 public class MediaPath implements Selectable {
 
-    private File path;
+    private final File path;
 
     private MediaPath parentPath;
 
@@ -16,14 +16,17 @@ public class MediaPath implements Selectable {
 
     private boolean selected;
 
+    private int hashCode;
 
-    public File getPath() {
-        return path;
+
+    public MediaPath(File path) {
+        this.path = path;
+        this.hashCode = path.getAbsolutePath().hashCode();
     }
 
 
-    public void setPath(File path) {
-        this.path = path;
+    public File getPath() {
+        return path;
     }
 
 
@@ -55,5 +58,26 @@ public class MediaPath implements Selectable {
     @Override
     public void setSelected(boolean selected) {
         this.selected = selected;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof MediaPath)) {
+            return false;
+        }
+
+        MediaPath mediaPath = (MediaPath) o;
+
+        return hashCode == mediaPath.hashCode;
+    }
+
+
+    @Override
+    public int hashCode() {
+        return hashCode;
     }
 }
