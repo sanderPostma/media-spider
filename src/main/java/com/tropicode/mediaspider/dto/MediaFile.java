@@ -12,7 +12,7 @@ public class MediaFile implements Selectable {
 
     private int hashCode;
 
-    private String fileName;
+    private Path filePath;
 
     private FileTime earliestTime;
 
@@ -20,14 +20,14 @@ public class MediaFile implements Selectable {
 
     private String movedTo;
 
-    private int duplicates = 0;
-
     private boolean selected;
+    private MediaType mediaType;
 
 
-    public MediaFile(Path file, BasicFileAttributes attrs) {
-        this.fileName = file.getFileName().toString();
+    public MediaFile(Path filePath, BasicFileAttributes attrs, MediaType mediaType) {
+        this.filePath = filePath;
         setEarliestTime(attrs);
+        setMediaType(mediaType);
     }
 
 
@@ -41,13 +41,13 @@ public class MediaFile implements Selectable {
     }
 
 
-    public String getFileName() {
-        return fileName;
+    public Path getFilePath() {
+        return filePath;
     }
 
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    public void setFilePath(Path filePath) {
+        this.filePath = filePath;
     }
 
 
@@ -68,6 +68,24 @@ public class MediaFile implements Selectable {
 
     public void setMovedTo(String movedTo) {
         this.movedTo = movedTo;
+    }
+
+
+    public void setEarliestTime(BasicFileAttributes attrs) {
+        FileTime earliestTime = attrs.creationTime().compareTo(attrs.lastModifiedTime()) < 0 ? attrs.creationTime() : attrs.lastModifiedTime();
+        if (this.earliestTime == null || this.earliestTime.compareTo(earliestTime) >= 0) {
+            this.earliestTime = earliestTime;
+        }
+    }
+
+
+    public FileTime getEarliestTime() {
+        return earliestTime;
+    }
+
+
+    public void addMediaPath(MediaPath mediaPath) {
+        this.mediaPaths.add(mediaPath);
     }
 
 
@@ -104,31 +122,12 @@ public class MediaFile implements Selectable {
     }
 
 
-    public void setEarliestTime(BasicFileAttributes attrs) {
-        FileTime earliestTime = attrs.creationTime().compareTo(attrs.lastModifiedTime()) < 0 ? attrs.creationTime() : attrs.lastModifiedTime();
-        if (this.earliestTime == null || this.earliestTime.compareTo(earliestTime) >= 0) {
-            this.earliestTime = earliestTime;
-        }
+    public void setMediaType(MediaType mediaType) {
+        this.mediaType = mediaType;
     }
 
 
-    public FileTime getEarliestTime() {
-        return earliestTime;
+    public MediaType getMediaType() {
+        return mediaType;
     }
-
-
-    public int getDuplicates() {
-        return duplicates;
-    }
-
-
-    public void setDuplicates(int duplicates) {
-        this.duplicates = duplicates;
-    }
-
-
-    public void addDuplicate() {
-        duplicates++;
-    }
-
 }

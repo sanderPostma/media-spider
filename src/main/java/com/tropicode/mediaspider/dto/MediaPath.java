@@ -2,13 +2,13 @@ package com.tropicode.mediaspider.dto;
 
 import com.tropicode.mediaspider.controllers.Selectable;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 
 public class MediaPath implements Selectable {
 
-    private final File path;
+    private final Path path;
 
     private MediaPath parentPath;
 
@@ -18,14 +18,16 @@ public class MediaPath implements Selectable {
 
     private int hashCode;
 
+    private int fileCount;
 
-    public MediaPath(File path) {
+
+    public MediaPath(Path path) {
         this.path = path;
-        this.hashCode = path.getAbsolutePath().hashCode();
+        this.hashCode = path.toAbsolutePath().toAbsolutePath().hashCode();
     }
 
 
-    public File getPath() {
+    public Path getPath() {
         return path;
     }
 
@@ -50,10 +52,26 @@ public class MediaPath implements Selectable {
     }
 
 
+    public void incrementFileCount() {
+        this.fileCount = 0;
+    }
+
+
+    public int getFileCount() {
+        return fileCount;
+    }
+
+
+    public void setFileCount(int fileCount) {
+        this.fileCount = fileCount;
+    }
+
+
     @Override
     public boolean isSelected() {
         return selected;
     }
+
 
     @Override
     public void setSelected(boolean selected) {
