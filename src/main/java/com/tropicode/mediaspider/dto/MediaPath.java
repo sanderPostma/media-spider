@@ -1,10 +1,14 @@
 package com.tropicode.mediaspider.dto;
 
 import com.tropicode.mediaspider.controllers.Selectable;
+import javafx.scene.control.CheckBoxTreeItem;
 
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MediaPath implements Selectable {
 
@@ -18,12 +22,16 @@ public class MediaPath implements Selectable {
 
     private int hashCode;
 
-    private int fileCount;
+    private Map<MediaType, AtomicInteger> fileCounters = new HashMap<>();
+    private boolean root;
 
 
     public MediaPath(Path path) {
         this.path = path;
-        this.hashCode = path.toAbsolutePath().toAbsolutePath().hashCode();
+        this.hashCode = path.toAbsolutePath().toString().hashCode();
+        for (MediaType value : MediaType.values()) {
+            fileCounters.put(value, new AtomicInteger());
+        }
     }
 
 
@@ -52,18 +60,18 @@ public class MediaPath implements Selectable {
     }
 
 
-    public void incrementFileCount() {
-        this.fileCount = 0;
+    public void incrementFileCount(MediaType mediaType) {
+        fileCounters.get(mediaType).incrementAndGet();
     }
 
 
-    public int getFileCount() {
-        return fileCount;
+    public int getFileCount(MediaType mediaType) {
+        return fileCounters.get(mediaType).get();
     }
 
 
-    public void setFileCount(int fileCount) {
-        this.fileCount = fileCount;
+    public void setFileCount(MediaType mediaType, int fileCount) {
+        fileCounters.get(mediaType).set(fileCount);
     }
 
 
@@ -97,5 +105,60 @@ public class MediaPath implements Selectable {
     @Override
     public int hashCode() {
         return hashCode;
+    }
+
+
+    public void setRoot(boolean root) {
+        this.root = root;
+    }
+
+
+    public boolean isRoot() {
+        return root;
+    }
+
+
+    public CheckBoxTreeItem<MediaPath> toTreeItem() {
+        CheckBoxTreeItem<MediaPath> treeItem = new CheckBoxTreeItem(this);
+        treeItem.setSelected(true);
+        treeItem.setExpanded(true);
+        treeItem.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(), event ->
+                setSelected(event.getTreeItem().isSelected()));
+        for (MediaPath childPath : children) {
+            treeItem.getChildren().add(childPath.toTreeItem());
+        }
+        return treeItem;
+    }
+
+
+    @Override
+    public String toString() {
+        StringBuilder label = new StringBuilder();
+        if (isRoot()) {
+            label.append(path.toAbsolutePath().toString());
+        } else {
+            label.append(path.getFileName().toString());
+        }
+        StringBuilder counters = new StringBuilder();
+        fileCounters.entrySet().forEach(mediaTypeAtomicIntegerEntry -> {
+            AtomicInteger counter = mediaTypeAtomicIntegerEntry.getValue();
+            if (counter.get() > 0) {
+                if (counters.length() <= 0) {
+                    counters.append("Found ");
+                } else {
+                    counters.append(" and ");
+                }
+                counters.append(String.format("%d %s item(s)", counter.get(), mediaTypeAtomicIntegerEntry.getKey()));
+            }
+        });
+        if (counters.length() > 0) {
+            label.append(" - ").append(counters).append('.');
+        }
+        return label.toString();
+    }
+
+
+    public void addChild(MediaPath mediaPath) {
+        children.add(mediaPath);
     }
 }

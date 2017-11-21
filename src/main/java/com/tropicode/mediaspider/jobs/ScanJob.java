@@ -57,7 +57,7 @@ public class ScanJob extends Thread {
 
     @Override
     public void run() {
-        uiMessageChannel.jobStart(ANALYSE_JOB_NAME);
+        uiMessageChannel.jobStarted(ANALYSE_JOB_NAME);
 
         StringTokenizer tokenizer = new StringTokenizer(searchPaths, ";");
         while (tokenizer.hasMoreTokens()) {
@@ -87,6 +87,7 @@ public class ScanJob extends Thread {
 
 
     private void scanPath(Path path) throws IOException {
+        fileRepository.registerRootPath(path);
         Files.walkFileTree(path, new FileVisitor<Path>() {
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
@@ -144,5 +145,10 @@ public class ScanJob extends Thread {
             return MediaType.VIDEO;
         }
         return MediaType.OTHER;
+    }
+
+
+    public FileRepository getFileRepository() {
+        return fileRepository;
     }
 }

@@ -2,8 +2,11 @@ package com.tropicode.mediaspider.controllers;
 
 import com.gluonhq.particle.application.ParticleApplication;
 import com.gluonhq.particle.view.ViewManager;
+import com.tropicode.mediaspider.jobs.ScanJob;
+import com.tropicode.mediaspider.views.SelectView;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionMap;
@@ -20,7 +23,7 @@ public class JobController implements UIMessageChannel {
     private ViewManager viewManager;
 
     @FXML
-    private javafx.scene.control.Label labelJobDesc;
+    private Label labelJobDesc;
 
     @FXML
     private TextArea textLog;
@@ -29,6 +32,7 @@ public class JobController implements UIMessageChannel {
     private Action actionPauseJob;
     private Action actionResumeJob;
     private Action actionCancelJob;
+    private ScanJob scanJob;
 
 
     public void initialize() {
@@ -42,6 +46,12 @@ public class JobController implements UIMessageChannel {
     }
 
 
+    public void startScanJob(String searchPath, String pictureFilePatterns, String videoFilePatterns, String targetFolder, boolean separatePicsAndVideos) {
+        scanJob = new ScanJob(this, searchPath, pictureFilePatterns, videoFilePatterns, targetFolder, separatePicsAndVideos);
+        scanJob.start();
+    }
+
+
     public void postInit() {
         app.getParticle().getToolBarActions().add(0, actionCancelJob);
         app.getParticle().getToolBarActions().add(0, actionRestartJob);
@@ -51,7 +61,10 @@ public class JobController implements UIMessageChannel {
 
 
     public void dispose() {
+        app.getParticle().getToolBarActions().remove(actionCancelJob);
         app.getParticle().getToolBarActions().remove(actionRestartJob);
+        app.getParticle().getToolBarActions().remove(actionResumeJob);
+        app.getParticle().getToolBarActions().remove(actionPauseJob);
     }
 
 
@@ -81,7 +94,7 @@ public class JobController implements UIMessageChannel {
 
 
     @Override
-    public void jobStart(String jobName) {
+    public void jobStarted(String jobName) {
         actionPauseJob.disabledProperty().setValue(false);
         actionResumeJob.disabledProperty().setValue(true);
         actionCancelJob.disabledProperty().setValue(false);
@@ -105,10 +118,15 @@ public class JobController implements UIMessageChannel {
     public void jobDone(boolean successful) {
         actionPauseJob.disabledProperty().setValue(true);
         actionResumeJob.disabledProperty().setValue(true);
-        actionCancelJob.disabledProperty().setValue(true);
+        actionCancelJob.disabledProperty().setValue(false);
         actionRestartJob.disabledProperty().setValue(false);
         if (successful) {
-            viewManager.switchView("select");
+            Platform.runLater(() -> {
+                viewManager.switchView("select");
+                SelectView selectView = (SelectView) viewManager.getCurrentView();
+                SelectController selectController = (SelectController) selectView.getController();
+                selectController.go(scanJob.getFileRepository());
+            });
         }
     }
 }

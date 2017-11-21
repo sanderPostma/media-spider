@@ -3,7 +3,6 @@ package com.tropicode.mediaspider.controllers;
 import com.gluonhq.particle.application.ParticleApplication;
 import com.gluonhq.particle.state.StateManager;
 import com.gluonhq.particle.view.ViewManager;
-import com.tropicode.mediaspider.jobs.ScanJob;
 import com.tropicode.mediaspider.views.JobView;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -100,10 +99,8 @@ public class ConfigureController {
     private void scan() {
         viewManager.switchView("job");
         JobView jobView = (JobView) viewManager.getCurrentView();
-        ScanJob scanJob = new ScanJob((UIMessageChannel)jobView.getController(), textSearchPath.getText(),
-                textPictureFileTypes.getText(), textVideoFileTypes.getText(), textTargetFolder.getText(),
+        JobController jobController = (JobController) jobView.getController();
+        jobController.startScanJob(textSearchPath.getText(), textPictureFileTypes.getText(), textVideoFileTypes.getText(), textTargetFolder.getText(),
                 checkboxSeparate.isSelected());
-        scanJob.start();
     }
-
 }

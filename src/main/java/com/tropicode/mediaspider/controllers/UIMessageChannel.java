@@ -2,7 +2,7 @@ package com.tropicode.mediaspider.controllers;
 
 public interface UIMessageChannel {
 
-    void jobStart(String jobName);
+    void jobStarted(String jobName);
 
     void logMessage(String message);
 
