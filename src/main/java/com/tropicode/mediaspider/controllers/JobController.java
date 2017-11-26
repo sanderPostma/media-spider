@@ -2,6 +2,9 @@ package com.tropicode.mediaspider.controllers;
 
 import com.gluonhq.particle.application.ParticleApplication;
 import com.gluonhq.particle.view.ViewManager;
+import com.tropicode.mediaspider.dto.MediaPath;
+import com.tropicode.mediaspider.jobs.FileRepository;
+import com.tropicode.mediaspider.jobs.MoveJob;
 import com.tropicode.mediaspider.jobs.ScanJob;
 import com.tropicode.mediaspider.views.SelectView;
 import javafx.application.Platform;
@@ -33,6 +36,9 @@ public class JobController implements UIMessageChannel {
     private Action actionResumeJob;
     private Action actionCancelJob;
     private ScanJob scanJob;
+    private MoveJob moveJob;
+    private String targetFolder;
+    private boolean separateVideos;
 
 
     public void initialize() {
@@ -46,9 +52,14 @@ public class JobController implements UIMessageChannel {
     }
 
 
-    public void startScanJob(String searchPath, String pictureFilePatterns, String videoFilePatterns, String targetFolder, boolean separatePicsAndVideos) {
-        scanJob = new ScanJob(this, searchPath, pictureFilePatterns, videoFilePatterns, targetFolder, separatePicsAndVideos);
+    public void startScanJob(String searchPath, String pictureFilePatterns, String videoFilePatterns) {
+        scanJob = new ScanJob(this, searchPath, pictureFilePatterns, videoFilePatterns);
         scanJob.start();
+    }
+
+    public void startMoveJob() {
+        moveJob = new MoveJob(this, scanJob.getFileRepository(), targetFolder, separateVideos);
+        moveJob.start();
     }
 
 
@@ -128,5 +139,11 @@ public class JobController implements UIMessageChannel {
                 selectController.go(scanJob.getFileRepository());
             });
         }
+    }
+
+
+    public void prepareMoveJob(String targetFolder, boolean separateVideos) {
+        this.targetFolder = targetFolder;
+        this.separateVideos = separateVideos;
     }
 }

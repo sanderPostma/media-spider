@@ -100,7 +100,7 @@ public class ConfigureController {
         viewManager.switchView("job");
         JobView jobView = (JobView) viewManager.getCurrentView();
         JobController jobController = (JobController) jobView.getController();
-        jobController.startScanJob(textSearchPath.getText(), textPictureFileTypes.getText(), textVideoFileTypes.getText(), textTargetFolder.getText(),
-                checkboxSeparate.isSelected());
+        jobController.startScanJob(textSearchPath.getText(), textPictureFileTypes.getText(), textVideoFileTypes.getText());
+        jobController.prepareMoveJob(textTargetFolder.getText(), checkboxSeparate.isSelected());
     }
 }

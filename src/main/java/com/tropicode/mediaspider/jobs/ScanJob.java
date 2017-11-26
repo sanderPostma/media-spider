@@ -3,6 +3,7 @@ package com.tropicode.mediaspider.jobs;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.tropicode.mediaspider.controllers.UIMessageChannel;
 import com.tropicode.mediaspider.dto.MediaType;
 
@@ -21,8 +22,6 @@ public class ScanJob extends Thread {
     private static final String ANALYSE_JOB_NAME = "Scanning files";
     private final UIMessageChannel uiMessageChannel;
     private final String searchPaths;
-    private final String targetFolder;
-    private final boolean separateVideo;
     private Pattern pictureFiletypes;
     private Pattern videoFileTypes;
     private final FileRepository fileRepository = new FileRepository();
@@ -30,7 +29,7 @@ public class ScanJob extends Thread {
     private final AtomicBoolean hasErrors = new AtomicBoolean();
 
 
-    public ScanJob(UIMessageChannel uiMessageChannel, String searchPaths, String pictureFileTypes, String videoFileTypes, String targetFolder, boolean separateVideo) {
+    public ScanJob(UIMessageChannel uiMessageChannel, String searchPaths, String pictureFileTypes, String videoFileTypes) {
         this.uiMessageChannel = uiMessageChannel;
         this.searchPaths = searchPaths;
 
@@ -50,8 +49,6 @@ public class ScanJob extends Thread {
             builder.append('(').append(ext.replace("*", "\\w*").replace("?", "\\w")).append('$').append(')');
         }
         this.videoFileTypes = Pattern.compile("(?i)" + builder.toString());
-        this.targetFolder = targetFolder;
-        this.separateVideo = separateVideo;
     }
 
 
@@ -115,7 +112,7 @@ public class ScanJob extends Thread {
                             queuedRegistrationTasks.decrementAndGet();
                             hasErrors.set(true);
                         }
-                    });
+                    }, MoreExecutors.directExecutor());
                 }
                 return FileVisitResult.CONTINUE;
             }

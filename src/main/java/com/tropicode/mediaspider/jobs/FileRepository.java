@@ -49,14 +49,14 @@ public class FileRepository {
         Futures.addCallback(futureFileHash, new FutureCallback<Long>() {
             @Override
             public void onSuccess(@Nullable Long hash) {
-                MediaFile mediaFile = fileMap.get(futureFileHash);
+                MediaFile mediaFile = fileMap.get(hash);
                 if (mediaFile == null) {
                     mediaFile = new MediaFile(file, attrs, mediaType);
                     fileMap.put(hash, mediaFile);
                 } else {
                     mediaFile.setEarliestTime(attrs);
                 }
-                mediaFile.addMediaPath(registerPaths(mediaFile));
+                mediaFile.addMediaPath(registerPaths(mediaFile), file);
             }
 
 

@@ -1,14 +1,12 @@
 package com.tropicode.mediaspider.dto;
 
-import com.tropicode.mediaspider.controllers.Selectable;
-
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
-public class MediaFile implements Selectable {
+public class MediaFile {
 
     private int hashCode;
 
@@ -16,11 +14,10 @@ public class MediaFile implements Selectable {
 
     private FileTime earliestTime;
 
-    private Set<MediaPath> mediaPaths = new HashSet<>();
+    private Map<MediaPath, Path> mediaPaths = new HashMap<>();
 
-    private String movedTo;
+    private Path movedTo;
 
-    private boolean selected;
     private MediaType mediaType;
 
 
@@ -51,22 +48,22 @@ public class MediaFile implements Selectable {
     }
 
 
-    public Set<MediaPath> getMediaPaths() {
+    public Map<MediaPath, Path> getMediaPaths() {
         return mediaPaths;
     }
 
 
-    public void setMediaPaths(Set<MediaPath> mediaPaths) {
+    public void setMediaPaths(Map<MediaPath, Path> mediaPaths) {
         this.mediaPaths = mediaPaths;
     }
 
 
-    public String getMovedTo() {
+    public Path getMovedTo() {
         return movedTo;
     }
 
 
-    public void setMovedTo(String movedTo) {
+    public void setMovedTo(Path movedTo) {
         this.movedTo = movedTo;
     }
 
@@ -84,20 +81,8 @@ public class MediaFile implements Selectable {
     }
 
 
-    public void addMediaPath(MediaPath mediaPath) {
-        this.mediaPaths.add(mediaPath);
-    }
-
-
-    @Override
-    public boolean isSelected() {
-        return selected;
-    }
-
-
-    @Override
-    public void setSelected(boolean selected) {
-        this.selected = selected;
+    public void addMediaPath(MediaPath mediaPath, Path file) {
+        this.mediaPaths.put(mediaPath, file);
     }
 
 
@@ -130,4 +115,6 @@ public class MediaFile implements Selectable {
     public MediaType getMediaType() {
         return mediaType;
     }
+
+
 }

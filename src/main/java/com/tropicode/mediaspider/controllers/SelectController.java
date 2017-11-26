@@ -4,7 +4,9 @@ import com.gluonhq.particle.application.ParticleApplication;
 import com.gluonhq.particle.view.ViewManager;
 import com.tropicode.mediaspider.dto.MediaPath;
 import com.tropicode.mediaspider.jobs.FileRepository;
+import com.tropicode.mediaspider.views.JobView;
 import javafx.fxml.FXML;
+import javafx.scene.control.CheckBoxTreeItem;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.CheckBoxTreeCell;
@@ -55,6 +57,10 @@ public class SelectController {
 
     @ActionProxy(text = "Proceed move")
     private void proceed() {
+        viewManager.switchView("job");
+        JobView jobView = (JobView) viewManager.getCurrentView();
+        JobController jobController = (JobController) jobView.getController();
+        jobController.startMoveJob();
     }
 
 
@@ -76,7 +82,23 @@ public class SelectController {
         fileRepository.getRootPaths().forEach(mediaPath -> {
             if (mediaPath != null) {
                 root.getChildren().add(mediaPath.toTreeItem());
+                setSelected(mediaPath, true);
             }
         });
+
+        root.addEventHandler(CheckBoxTreeItem.<MediaPath>checkBoxSelectionChangedEvent(), event -> {
+            if (event.wasSelectionChanged()) {
+                CheckBoxTreeItem<MediaPath> treeItem = event.getTreeItem();
+                setSelected(treeItem.getValue(), treeItem.isSelected());
+            }
+        });
+    }
+
+
+    private void setSelected(MediaPath mediaPath, boolean selected) {
+        mediaPath.setSelected(selected);
+        for (MediaPath childPath : mediaPath.getChildren()) {
+            setSelected(childPath, selected);
+        }
     }
 }
