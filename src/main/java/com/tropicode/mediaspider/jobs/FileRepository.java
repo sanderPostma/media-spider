@@ -29,7 +29,7 @@ public class FileRepository {
     private Map<Thread, byte[]> buffers = new HashMap<>();
 
     static {
-        int cores = 1;//Runtime.getRuntime().availableProcessors();
+        int cores = Runtime.getRuntime().availableProcessors();
         if (cores > 4) {
             cores -= 2;
         }
@@ -44,19 +44,22 @@ public class FileRepository {
     }
 
 
-    public ListenableFuture<Long> registerFile(Path file, BasicFileAttributes attrs, MediaType mediaType) throws IOException {
+    public ListenableFuture<Long> registerFile(final Path file, BasicFileAttributes attrs, MediaType mediaType) throws IOException {
         ListenableFuture<Long> futureFileHash = hashFile(file);
         Futures.addCallback(futureFileHash, new FutureCallback<Long>() {
             @Override
-            public void onSuccess(@Nullable Long hash) {
-                MediaFile mediaFile = fileMap.get(hash);
+            public void onSuccess(@Nullable Long crc) {
+                MediaFile mediaFile = fileMap.get(crc);
                 if (mediaFile == null) {
-                    mediaFile = new MediaFile(file, attrs, mediaType);
-                    fileMap.put(hash, mediaFile);
+                    mediaFile = new MediaFile(crc, attrs, mediaType);
+                    fileMap.put(crc, mediaFile);
                 } else {
                     mediaFile.setEarliestTime(attrs);
                 }
-                mediaFile.addMediaPath(registerPaths(mediaFile), file);
+                MediaPath mediaPath = registerPaths(file, mediaFile);
+                if (!mediaFile.hasMediaPath(mediaPath)) {
+                    mediaFile.registerPath(file, mediaPath);
+                }
             }
 
 
@@ -69,8 +72,7 @@ public class FileRepository {
     }
 
 
-    private MediaPath registerPaths(MediaFile file) {
-        Path filePath = file.getFilePath();
+    private MediaPath registerPaths(Path filePath, MediaFile file) {
         MediaPath fileMediaPath = null;
         MediaPath lastMediaPath = null;
         Path parentPath = filePath.getParent();

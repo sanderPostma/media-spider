@@ -76,7 +76,7 @@ public class SelectController {
 
 
     public void go(FileRepository fileRepository) {
-        TreeItem<MediaPath> root = new TreeItem();
+        TreeItem<MediaPath> root = new TreeItem<MediaPath>();
         treeView.setRoot(root);
         treeView.setCellFactory(CheckBoxTreeCell.forTreeView());
         fileRepository.getRootPaths().forEach(mediaPath -> {

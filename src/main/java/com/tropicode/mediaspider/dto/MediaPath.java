@@ -119,7 +119,7 @@ public class MediaPath implements Selectable {
 
 
     public CheckBoxTreeItem<MediaPath> toTreeItem() {
-        CheckBoxTreeItem<MediaPath> treeItem = new CheckBoxTreeItem(this);
+        CheckBoxTreeItem<MediaPath> treeItem = new CheckBoxTreeItem<MediaPath>(this);
         treeItem.setSelected(true);
         treeItem.setExpanded(true);
         treeItem.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(), event ->

@@ -16,6 +16,11 @@ import org.controlsfx.control.action.ActionProxy;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
 public class ConfigureController {
@@ -64,6 +69,7 @@ public class ConfigureController {
         ActionMap.register(this);
         actionScan = ActionMap.action("scan");
         buttonBrowseSearchPath.setOnAction(event -> selectSearchPathFolder());
+        buttonBrowseTargetFolder.setOnAction(event -> selectTargetFolder());
     }
 
 
@@ -77,6 +83,15 @@ public class ConfigureController {
             }
             builder.append(selectedDirectory.getAbsolutePath());
             textSearchPath.setText(builder.toString());
+        }
+    }
+
+
+    private void selectTargetFolder() {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        File selectedDirectory = directoryChooser.showDialog(app.getPrimaryStage());
+        if (!textTargetFolder.getText().equals(selectedDirectory.getAbsolutePath())) {
+            textTargetFolder.setText(selectedDirectory.getAbsolutePath());
         }
     }
 

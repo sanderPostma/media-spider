@@ -2,15 +2,15 @@ package com.tropicode.mediaspider.controllers;
 
 import com.gluonhq.particle.application.ParticleApplication;
 import com.gluonhq.particle.view.ViewManager;
-import com.tropicode.mediaspider.dto.MediaPath;
-import com.tropicode.mediaspider.jobs.FileRepository;
 import com.tropicode.mediaspider.jobs.MoveJob;
 import com.tropicode.mediaspider.jobs.ScanJob;
 import com.tropicode.mediaspider.views.SelectView;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.ListView;
+import javafx.scene.control.SelectionMode;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionMap;
 import org.controlsfx.control.action.ActionProxy;
@@ -29,7 +29,7 @@ public class JobController implements UIMessageChannel {
     private Label labelJobDesc;
 
     @FXML
-    private TextArea textLog;
+    private ListView<String> listViewLog;
 
     private Action actionRestartJob;
     private Action actionPauseJob;
@@ -37,8 +37,10 @@ public class JobController implements UIMessageChannel {
     private Action actionCancelJob;
     private ScanJob scanJob;
     private MoveJob moveJob;
-    private String targetFolder;
+    private String targetDirectory;
     private boolean separateVideos;
+    private ObservableList<String> logItems;
+    private int itemCounter;
 
 
     public void initialize() {
@@ -49,6 +51,9 @@ public class JobController implements UIMessageChannel {
         actionResumeJob = ActionMap.action("resumeJob");
         actionResumeJob.disabledProperty().setValue(true);
         actionCancelJob = ActionMap.action("cancelJob");
+        listViewLog.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        listViewLog.setEditable(false);
+        logItems = listViewLog.getItems();
     }
 
 
@@ -57,8 +62,9 @@ public class JobController implements UIMessageChannel {
         scanJob.start();
     }
 
+
     public void startMoveJob() {
-        moveJob = new MoveJob(this, scanJob.getFileRepository(), targetFolder, separateVideos);
+        moveJob = new MoveJob(this, scanJob.getFileRepository(), targetDirectory, separateVideos);
         moveJob.start();
     }
 
@@ -110,17 +116,25 @@ public class JobController implements UIMessageChannel {
         actionResumeJob.disabledProperty().setValue(true);
         actionCancelJob.disabledProperty().setValue(false);
         actionRestartJob.disabledProperty().setValue(false);
-        Platform.runLater(() -> {
+        Platform.runLater(() ->
+        {
             labelJobDesc.setText(jobName);
-            textLog.setText("");
+            logItems.clear();
+            itemCounter = 0;
         });
     }
 
 
     @Override
     public void logMessage(String message) {
-        Platform.runLater(() -> {
-            textLog.appendText("\r\n" + message);
+        Platform.runLater(() ->
+        {
+            logItems.add(message);
+            itemCounter++;
+            if (itemCounter == 40) {
+                listViewLog.scrollTo(logItems.size() - 1);
+                itemCounter = 0;
+            }
         });
     }
 
@@ -132,7 +146,8 @@ public class JobController implements UIMessageChannel {
         actionCancelJob.disabledProperty().setValue(false);
         actionRestartJob.disabledProperty().setValue(false);
         if (successful) {
-            Platform.runLater(() -> {
+            Platform.runLater(() ->
+            {
                 viewManager.switchView("select");
                 SelectView selectView = (SelectView) viewManager.getCurrentView();
                 SelectController selectController = (SelectController) selectView.getController();
@@ -142,8 +157,8 @@ public class JobController implements UIMessageChannel {
     }
 
 
-    public void prepareMoveJob(String targetFolder, boolean separateVideos) {
-        this.targetFolder = targetFolder;
+    public void prepareMoveJob(String targetDirectory, boolean separateVideos) {
+        this.targetDirectory = targetDirectory;
         this.separateVideos = separateVideos;
     }
 }

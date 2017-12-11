@@ -6,6 +6,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.tropicode.mediaspider.controllers.UIMessageChannel;
 import com.tropicode.mediaspider.dto.MediaType;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -58,7 +59,11 @@ public class ScanJob extends Thread {
 
         StringTokenizer tokenizer = new StringTokenizer(searchPaths, ";");
         while (tokenizer.hasMoreTokens()) {
-            Path path = Paths.get(tokenizer.nextToken());
+            String rootPath = tokenizer.nextToken().trim();
+            if (StringUtils.isEmpty(rootPath))
+                continue;
+
+            Path path = Paths.get(rootPath);
             if (!Files.exists(path)) {
                 uiMessageChannel.logMessage("Path " + path + " does not exist, skipping...");
             } else {

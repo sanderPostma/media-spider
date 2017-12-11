@@ -4,56 +4,46 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class MediaFile {
 
-    private int hashCode;
-
-    private Path filePath;
+    private Long crc;
 
     private FileTime earliestTime;
 
-    private Map<MediaPath, Path> mediaPaths = new HashMap<>();
+    private Map<Path, MediaPath> mediaPaths = new HashMap<>();
 
     private Path movedTo;
 
     private MediaType mediaType;
 
 
-    public MediaFile(Path filePath, BasicFileAttributes attrs, MediaType mediaType) {
-        this.filePath = filePath;
+    public MediaFile(Long crc, BasicFileAttributes attrs, MediaType mediaType) {
+        this.crc = crc;
         setEarliestTime(attrs);
         setMediaType(mediaType);
     }
 
 
-    public int getHashCode() {
-        return hashCode;
+    public Long getCrc() {
+        return crc;
     }
 
 
-    public void setHashCode(int hashCode) {
-        this.hashCode = hashCode;
+    public void setCrc(Long crc) {
+        this.crc = crc;
     }
 
 
-    public Path getFilePath() {
-        return filePath;
-    }
-
-
-    public void setFilePath(Path filePath) {
-        this.filePath = filePath;
-    }
-
-
-    public Map<MediaPath, Path> getMediaPaths() {
+    public Map<Path, MediaPath> getMediaPaths() {
         return mediaPaths;
     }
 
 
-    public void setMediaPaths(Map<MediaPath, Path> mediaPaths) {
+    public void setMediaPaths(Map<Path, MediaPath> mediaPaths) {
         this.mediaPaths = mediaPaths;
     }
 
@@ -81,8 +71,8 @@ public class MediaFile {
     }
 
 
-    public void addMediaPath(MediaPath mediaPath, Path file) {
-        this.mediaPaths.put(mediaPath, file);
+    public void registerPath(Path file, MediaPath mediaPath) {
+        this.mediaPaths.put(file, mediaPath);
     }
 
 
@@ -97,13 +87,13 @@ public class MediaFile {
 
         MediaFile mediaFile = (MediaFile) o;
 
-        return getHashCode() == mediaFile.getHashCode();
+        return getCrc() == mediaFile.getCrc();
     }
 
 
     @Override
     public int hashCode() {
-        return getHashCode();
+        return getCrc().hashCode();
     }
 
 
@@ -117,4 +107,27 @@ public class MediaFile {
     }
 
 
+    public boolean hasMediaPath(MediaPath mediaPath) {
+        return mediaPaths.containsKey(mediaPath);
+    }
+
+
+    @Override
+    public String toString() {
+        Set<Path> printedFileNames = new HashSet<>();
+        StringBuilder builder = new StringBuilder();
+        mediaPaths.keySet().forEach(path -> {
+            Path fileName = path.getFileName();
+            if (!printedFileNames.contains(fileName)) {
+                if (builder.length() > 0) {
+                    builder.append('=');
+                }
+                builder.append(fileName);
+                printedFileNames.add(fileName);
+            }
+        });
+        builder.insert(0, mediaType.toString() + ' ');
+        builder.append(", crc").append(getCrc());
+        return builder.toString();
+    }
 }
